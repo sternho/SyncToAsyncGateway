@@ -1,13 +1,19 @@
 package org.sync.to.async.mq;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.sync.to.async.cache.CacheService;
+import org.sync.to.async.dto.RequestObject;
+
+import java.util.UUID;
 
 @Slf4j
 @Service
-public class Sender {
+public class RabbitMqSender {
 
     private AmqpTemplate rabbitTemplate;
 
@@ -15,8 +21,13 @@ public class Sender {
     private String queueName = "testing";
 
     @Autowired
-    public Sender(AmqpTemplate rabbitTemplate) {
+    public RabbitMqSender(AmqpTemplate rabbitTemplate) {
         this.rabbitTemplate = rabbitTemplate;
+    }
+
+    public void send(String queueName, String message) {
+        log.info("sending: {}", message);
+        rabbitTemplate.convertAndSend("amq.direct", queueName, message);
     }
 
     public void send(String message) {

@@ -12,11 +12,16 @@ import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpResponseEncoder;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 @Component
 public class HttpServer {
+
+    @Autowired
+    private ApplicationContext applicationContext;
 
     private int port;
 
@@ -29,6 +34,8 @@ public class HttpServer {
         EventLoopGroup workerGroup = new NioEventLoopGroup();
         try {
             ServerBootstrap b = new ServerBootstrap();
+
+            final var asyncHttpServerHandler = applicationContext.getBean(AsyncHttpServerHandler.class);
             b.group(bossGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
                     .handler(new LoggingHandler(LogLevel.INFO))
@@ -38,7 +45,8 @@ public class HttpServer {
                             ChannelPipeline p = ch.pipeline();
                             p.addLast(new HttpRequestDecoder());
                             p.addLast(new HttpResponseEncoder());
-                            p.addLast(new CustomHttpServerHandler());
+                            p.addLast(asyncHttpServerHandler);
+//                            p.addLast(new CustomHttpServerHandler());
                         }
                     });
 

@@ -18,10 +18,10 @@ public class RabbitMQConfig {
     private static String exchange = "amq.direct";
     private static String routingkey = "testing";
 
-    private Listener listener;
+    private RabbitMqListener listener;
 
     @Autowired
-    public RabbitMQConfig(Listener listener) {
+    public RabbitMQConfig(RabbitMqListener listener) {
         this.listener = listener;
     }
 
